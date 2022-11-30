@@ -1,16 +1,21 @@
 import java.io.File
-import java.math.BigInteger
-import java.security.MessageDigest
 
 /**
- * Reads lines from the given input txt file.
+ * Reads from the given input txt file as strings split by the given delimiter.
  */
-fun readInput(name: String) = File("src", "$name.txt")
+fun readInputSplitByDelimiter(name: String, delimiter: String) = File("src", "$name.txt")
+    .readText()
+    .split(delimiter)
+
+/**
+ * Reads lines from the given input txt file as strings.
+ */
+fun readInputAsStrings(name: String) = File("src", "$name.txt")
     .readLines()
 
 /**
- * Converts string to md5 hash.
+ * Reads lines from the given input txt file as integers.
  */
-fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
-    .toString(16)
-    .padStart(32, '0')
+fun readInputAsInts(name: String) = File("src", "$name.txt")
+    .readLines()
+    .map{it.toInt()}
