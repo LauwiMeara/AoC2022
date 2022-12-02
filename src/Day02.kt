@@ -1,96 +1,99 @@
+enum class Shape {
+    ROCK, PAPER, SCISSORS
+}
+
+enum class Outcome {
+    LOSE, DRAW, WIN
+}
+
 fun main() {
-    fun calculateScoreOutcomePart1(opponent: String, ownShape: String): Int {
-        if (opponent == "A") {
-            return when(ownShape) {
-                "X" -> 3
-                "Y" -> 6
-                "Z" -> 0
-                else -> 0
-            }
-        } else if (opponent == "B") {
-            return when(ownShape) {
-                "X" -> 0
-                "Y" -> 3
-                "Z" -> 6
-                else -> 0
-            }
-        } else {
-            return when(ownShape) {
-                "X" -> 6
-                "Y" -> 0
-                "Z" -> 3
-                else -> 0
-            }
+    val shapes = mapOf(
+        "A" to Shape.ROCK,
+        "B" to Shape.PAPER,
+        "C" to Shape.SCISSORS,
+        "X" to Shape.ROCK,
+        "Y" to Shape.PAPER,
+        "Z" to Shape.SCISSORS)
+    val shapesList = listOf(Shape.ROCK, Shape.PAPER, Shape.SCISSORS)
+    val outcomes = mapOf(
+        "X" to Outcome.LOSE,
+        "Y" to Outcome.DRAW,
+        "Z" to Outcome.WIN
+    )
+
+    fun parseInputPart1(input: List<List<String>>): List<Pair<Shape, Shape>> {
+        return input.map{round -> Pair(shapes[round.first()]!!, shapes[round.last()]!!)}
+    }
+
+    fun parseInputPart2(input:List<List<String>>): List<Pair<Shape, Outcome>> {
+        return input.map{round -> Pair(shapes[round.first()]!!, outcomes[round.last()]!!)}
+    }
+
+    fun getOutcome(opponent: Shape, ownShape: Shape): Outcome {
+        val opponentIndex = shapesList.indexOf(opponent)
+        val ownShapeIndex = shapesList.indexOf(ownShape)
+        // There is a relation between the relative index of the shapes and the outcome
+        return when (ownShapeIndex - opponentIndex) {
+            -1,2 -> Outcome.LOSE
+            0 -> Outcome.DRAW
+            else -> Outcome.WIN
         }
     }
 
-    fun calculateScoreOutcomePart2(outcome: String): Int {
+    fun getShape(opponent: Shape, outcome:Outcome): Shape{
+        val opponentIndex = shapesList.indexOf(opponent)
+        // There is a relation between the relative index of the shapes and the outcome
+        return when (outcome) {
+            Outcome.LOSE -> if (opponentIndex - 1 >= 0) shapesList[opponentIndex - 1] else shapesList.last()
+            Outcome.DRAW -> shapesList[opponentIndex]
+            Outcome.WIN -> if (opponentIndex + 1 < shapesList.size) shapesList[opponentIndex + 1] else shapesList.first()
+        }
+    }
+
+    fun calculateScoreOutcome(outcome: Outcome): Int {
         return when(outcome) {
-            "X" -> 0
-            "Y" -> 3
-            "Z" -> 6
-            else -> 0
+            Outcome.LOSE -> 0
+            Outcome.DRAW -> 3
+            Outcome.WIN -> 6
         }
     }
 
-    fun calculateScoreShape(ownShape: String): Int{
+    fun calculateScoreShape(ownShape: Shape): Int{
         return when(ownShape) {
-            "X" -> 1
-            "Y" -> 2
-            "Z" -> 3
-            else -> 0
-        }
-    }
-
-    fun getShape(opponent: String, outcome:String): String{
-        if (opponent == "A") {
-            return when(outcome) {
-                "X" -> "Z"
-                "Y" -> "X"
-                "Z" -> "Y"
-                else -> ""
-            }
-        } else if (opponent == "B") {
-            return when(outcome) {
-                "X" -> "X"
-                "Y" -> "Y"
-                "Z" -> "Z"
-                else -> ""
-            }
-        } else {
-            return when(outcome) {
-                "X" -> "Y"
-                "Y" -> "Z"
-                "Z" -> "X"
-                else -> ""
-            }
+            Shape.ROCK -> 1
+            Shape.PAPER -> 2
+            else -> 3
         }
     }
 
     fun part1(input: List<List<String>>): Int {
+        val readableInput = parseInputPart1(input)
         var sum = 0
-        for (line in input) {
-            val opponent = line.first()
-            val ownShape = line.last()
+        for (line in readableInput) {
+            val opponent = line.first
+            val ownShape = line.second
+            val outcome = getOutcome(opponent, ownShape)
             sum += calculateScoreShape(ownShape)
-            sum += calculateScoreOutcomePart1(opponent, ownShape)
+            sum += calculateScoreOutcome(outcome)
         }
         return sum
     }
 
     fun part2(input: List<List<String>>): Int {
+        val readableInput = parseInputPart2(input)
         var sum = 0
-        for (line in input) {
-            val opponent = line.first()
-            val outcome = line.last()
+        for (line in readableInput) {
+            val opponent = line.first
+            val outcome = line.second
             val ownShape = getShape(opponent, outcome)
             sum += calculateScoreShape(ownShape)
-            sum += calculateScoreOutcomePart2(outcome)
+            sum += calculateScoreOutcome(outcome)
         }
         return sum
     }
 
-    val input = readInputAsStrings("Day02").map{it.split(" ")}
+    val input = readInputAsStrings("Day02")
+        .map{it.split(" ")}
 
     println(part1(input))
     println(part2(input))
