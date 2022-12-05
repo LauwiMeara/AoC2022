@@ -1,44 +1,35 @@
 import kotlin.collections.ArrayDeque
 
+const val FIRST_STACK_NUMBER = '1'
+
 fun main() {
     data class Procedure(val unit: Int, val startStack: Int, val destinationStack: Int)
 
-    fun getCrates(input: String): Map<Int, ArrayDeque<Char>> {
-        val splitInput = input.split(System.lineSeparator()).map{it.toCharArray()}
+    fun getCrates(input: List<String>): Map<Int, ArrayDeque<Char>> {
         val crates = mutableMapOf<Int, ArrayDeque<Char>>()
 
-        // Get row index of all stack numbers
-        var rowIndex = 0
-        for (i in splitInput.indices) {
-            if (splitInput[i].contains('1')) {
-                rowIndex = i
-                break
-            }
-        }
+        // Get rowIndex of all stackNumbers.
+        val rowIndex = input.indexOfFirst{it.contains(FIRST_STACK_NUMBER)}
 
-        var endReached = false
         var stackNumber = '1'
+        var endReached = false
         while (!endReached) {
-            // Get column index of a given stack number
-            var columnIndex = 0
-            for (i in splitInput[rowIndex].indices) {
-                if (splitInput[rowIndex][i] == stackNumber) {
-                    columnIndex = i
-                    break
-                }
-            }
-            // Add all crates from that index to stack if they are not null
+            // Get columnIndex of the given stackNumber.
+            val columnIndex = input[rowIndex].indexOfFirst{it == stackNumber}
+
+            // Fill the stack of the specified stackNumber with all crates on the same columnIndex.
             crates[stackNumber.digitToInt()] = ArrayDeque()
-            for (line in splitInput) {
-                if (line.size - 1 >= columnIndex &&
+            for (line in input) {
+                if (line.length - 1 >= columnIndex &&
                     line[columnIndex] != ' ' &&
                     line[columnIndex] != stackNumber) {
                     crates[stackNumber.digitToInt()]?.add(line[columnIndex])
                 }
             }
 
+            // Up the stackNumber and check if this stackNumber still exists. If not, end the loop.
             stackNumber++
-            if (splitInput.all{!it.contains(stackNumber)}) {
+            if (input.all{!it.contains(stackNumber)}) {
                 endReached = true
             }
         }
@@ -46,8 +37,8 @@ fun main() {
         return crates
     }
 
-    fun getProcedures(input: String): List<Procedure> {
-        val splitInput = input.split(System.lineSeparator()).map{line -> line.split("move ", " from ", " to ").filter{ it.isNotEmpty() }}
+    fun getProcedures(input: List<String>): List<Procedure> {
+        val splitInput = input.map{line -> line.split("move ", " from ", " to ").filter{ it.isNotEmpty() }}
         val procedures = mutableListOf<Procedure>()
         for (line in splitInput) {
             val unit = line[0].toInt()
@@ -57,8 +48,8 @@ fun main() {
         }
         return procedures
     }
-    
-    fun part1(input: List<String>): String {
+
+    fun part1(input: List<List<String>>): String {
         val crates = getCrates(input.first())
         val procedures = getProcedures(input.last())
         for (procedure in procedures) {
@@ -67,14 +58,10 @@ fun main() {
                 crates[procedure.destinationStack]?.addFirst(tempCrate)
             }
         }
-        var result = ""
-        for (k in crates.keys) {
-            result += crates[k]?.first()
-        }
-        return result
+        return crates.values.map{it.first()}.joinToString("")
     }
 
-    fun part2(input: List<String>): String {
+    fun part2(input: List<List<String>>): String {
         val crates = getCrates(input.first())
         val procedures = getProcedures(input.last())
         for (procedure in procedures) {
@@ -86,14 +73,11 @@ fun main() {
                 crates[procedure.destinationStack]?.addFirst(tempCrates[i])
             }
         }
-        var result = ""
-        for (k in crates.keys) {
-            result += crates[k]?.first()
-        }
-        return result
+        return crates.values.map{it.first()}.joinToString("")
     }
 
     val input = readInputSplitByDelimiter("Day05", "${System.lineSeparator()}${System.lineSeparator()}")
+        .map{it.split(System.lineSeparator())}
 
     println(part1(input))
     println(part2(input))
