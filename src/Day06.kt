@@ -4,7 +4,7 @@ const val SIZE_PART_2 = 14
 fun main() {
     fun getDistinctIndex(windowedInput: List<String>, size: Int): Int {
         for (i in windowedInput.indices) {
-            if (windowedInput[i].toList().distinct().size == size) {
+            if (windowedInput[i].toSet().size == size) {
                 return i
             }
         }
