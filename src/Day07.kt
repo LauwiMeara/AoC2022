@@ -5,20 +5,20 @@ fun main() {
     fun getListPerDirectory(input: List<String>): Map<String, List<String>> {
         val listPerDirectory = mutableMapOf<String, MutableList<String>>()
         var currentDirectory = ""
-        for (i in input.indices) {
-            val command = input[i].split(" ")
+        for (line in input) {
+            val command = line.split(" ")
             when (command[0]) {
                 "$" -> {
                     if (command[1] == "cd") {
-                        // Change directory
+                        // Change currentDirectory
                         if (command[2] == "..") {
                             currentDirectory = currentDirectory.substringBeforeLast("/")
                         } else {
                             currentDirectory += "/" + command[2]
                         }
 
-                        // Check if the map already contains the new currentDirectory.
-                        // If not, add it to create a list and avoid null exceptions later on.
+                        // Check if listPerDirectory already contains the new currentDirectory.
+                        // If not, add it and create an empty list to avoid null exceptions later on.
                         if (!listPerDirectory.containsKey(currentDirectory)) {
                             listPerDirectory[currentDirectory] = mutableListOf()
                         }
@@ -38,11 +38,7 @@ fun main() {
     }
 
     fun calculateDirectorySize(listPerDirectory: Map<String, List<String>>, directory: String): Long {
-        var sum = 0.toLong()
-        for (line in listPerDirectory[directory]!!) {
-            sum += line.toLongOrNull() ?: calculateDirectorySize(listPerDirectory, line)
-        }
-        return sum
+        return listPerDirectory[directory]!!.sumOf { it.toLongOrNull() ?: calculateDirectorySize(listPerDirectory, it) }
     }
 
     fun getSizePerDirectory(listPerDirectory: Map<String, List<String>>): Map<String, Long> {
