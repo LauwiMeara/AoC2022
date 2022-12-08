@@ -1,4 +1,16 @@
 fun main() {
+    fun calculateViewingDistance(range: IntProgression, isRowIndex: Boolean, input: List<List<Int>>, row: Int, col: Int): Int {
+        var viewingDistance = 0
+        for (i in range) {
+            viewingDistance++
+            if (isRowIndex && input[i][col] >= input[row][col] ||
+                !isRowIndex && input[row][i] >= input[row][col]) {
+                break
+            }
+        }
+        return viewingDistance
+    }
+
     fun part1(input: List<List<Int>>): Int {
         var numOfVisibleTrees = 0
         for (row in input.indices) {
@@ -25,38 +37,10 @@ fun main() {
         val scenicScores = mutableListOf<Int>()
         for (row in input.indices) {
             for (col in input.first().indices) {
-                // Calculate viewing distance upwards.
-                var up = 0
-                for (i in row - 1 downTo 0) {
-                    up++
-                    if (input[i][col] >= input[row][col]) {
-                        break
-                    }
-                }
-                // Calculate viewing distance downwards.
-                var down = 0
-                for (i in row + 1 until input.size) {
-                    down++
-                    if (input[i][col] >= input[row][col]) {
-                        break
-                    }
-                }
-                // Calculate viewing distance to the left.
-                var left = 0
-                for (i in col - 1 downTo 0) {
-                    left++
-                    if (input[row][i] >= input[row][col]) {
-                        break
-                    }
-                }
-                // Calculate viewing distance to the right.
-                var right = 0
-                for (i in col + 1 until input.first().size) {
-                    right++
-                    if (input[row][i] >= input[row][col]) {
-                        break
-                    }
-                }
+                val up = calculateViewingDistance((row - 1 downTo 0), true, input, row, col)
+                val down = calculateViewingDistance((row + 1 until input.size), true, input, row, col)
+                val left = calculateViewingDistance((col - 1 downTo 0), false, input, row, col)
+                val right = calculateViewingDistance((col + 1 until input.first().size), false, input, row, col)
                 scenicScores.add(up * down * left * right)
             }
         }
