@@ -75,7 +75,7 @@ fun main() {
         // Search for the shortest path by getting the lowest cost from the startNode to all visitedNodes, until END_LETTER is reached or cannot be reached.
         for ((i, startNode) in startNodes.withIndex()) {
             if (printProgress) {
-                println("Iteration: ${i}/${NUM_START_NODES}")
+                println("Iteration: $i/$NUM_START_NODES")
             }
             val unvisitedNodes = initialiseUnvisitedNodes(input, startNode)
             val visitedNodes = getCostPerVisitedNode(unvisitedNodes, startNode)
