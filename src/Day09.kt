@@ -7,7 +7,6 @@ enum class Direction {
 }
 
 data class Motion(val direction: Direction, val unit: Int)
-data class Point(val x: Int, val y: Int)
 
 fun main() {
     fun getMotions(input: List<List<String>>): List<Motion> {

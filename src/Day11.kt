@@ -25,14 +25,17 @@ fun main() {
             for (monkey in monkeys) {
                 for (i in monkey.items.indices) {
                     var item = monkey.items[i]
+
                     // Monkey plays with the item. Worry intensifies.
                     val worry = if (monkey.operation.last() == "old") item else monkey.operation.last().toLong()
                     when (monkey.operation.first()) {
                         "*" -> item *= worry
                         else -> item += worry
                     }
+
                     // Monkey gets bored with the item. Worry calms down.
                     item /= RELIEF
+
                     // Monkey throws the item to a different monkey.
                     if (item.toInt() % monkey.testDivisibleBy == 0) {
                         monkeys[monkey.indexIfTestTrue].items.add(item)
@@ -54,14 +57,17 @@ fun main() {
             for (monkey in monkeys) {
                 for (i in monkey.items.indices) {
                     var item = monkey.items[i]
+
                     // Monkey plays with the item. Worry intensifies.
                     val worry = if (monkey.operation.last() == "old") item else monkey.operation.last().toLong()
                     when (monkey.operation.first()) {
                         "*" -> item *= worry
                         else -> item += worry
                     }
+
                     // Keep worry level manageable by dividing by the totalTestDivisibleBy.
                     item %= totalTestDivisibleBy
+
                     // Monkey throws the item to a different monkey.
                     if (item % monkey.testDivisibleBy == 0L) {
                         monkeys[monkey.indexIfTestTrue].items.add(item)

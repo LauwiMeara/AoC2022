@@ -1,5 +1,7 @@
 import java.io.File
 
+data class Point(val x: Int, val y: Int)
+
 /**
  * Reads from the given input txt file as strings split by the given delimiter.
  */
