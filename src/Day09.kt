@@ -19,7 +19,6 @@ enum class Direction {
 }
 
 data class Motion(val direction: Direction, val unit: Int)
-data class Point(val x: Int, val y: Int)
 
 class KnotPanel(var headPositions: MutableList<Point>, var knotPositions: MutableList<MutableList<Point>>) : JPanel() {
     init {
