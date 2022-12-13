@@ -7,26 +7,26 @@ const val DIVIDER_PACKET_2 = "[[6]]"
 data class PacketPair (var left: String, var right: String)
 
 fun main() {
-    fun addBrackets(partPair: String, iChar: Int): String {
-        val prev = partPair.substring(0, iChar)
-        val nextTotal = partPair.substring(iChar, partPair.length)
+    fun addBrackets(partPair: String, charIndex: Int): String {
+        val prev = partPair.substring(0, charIndex)
+        val nextTotal = partPair.substring(charIndex, partPair.length)
         val indexAfterNumber = listOf(nextTotal.indexOf(CLOSE_BRACKET), nextTotal.indexOf(COMMA)).filter{it >= 0}.min()
         val next1 = nextTotal.substring(0, indexAfterNumber)
         val next2 = nextTotal.substring(indexAfterNumber, nextTotal.length)
         return "$prev[$next1]$next2"
     }
 
-    fun getNumber(partPair: String, iChar: Int): Int {
-        val next = partPair.substring(iChar, partPair.length)
+    fun getNumber(partPair: String, charIndex: Int): Int {
+        val next = partPair.substring(charIndex, partPair.length)
         val indexAfterNumber = listOf(next.indexOf(CLOSE_BRACKET), next.indexOf(COMMA)).filter{it >= 0}.min()
         return next.substring(0, indexAfterNumber).toInt()
     }
 
     fun pairIsCorrectlyOrdered(pair: PacketPair, printProgress: Boolean): Boolean {
         var isCorrectOrder = true
-        for (iChar in 0 until pair.left.length) {
-            val leftChar = pair.left[iChar]
-            val rightChar = pair.right[iChar]
+        for (charIndex in 0 until pair.left.length) {
+            val leftChar = pair.left[charIndex]
+            val rightChar = pair.right[charIndex]
             
             if (printProgress) {
                 println("Left: $leftChar}   Right: $rightChar")
@@ -45,17 +45,17 @@ fun main() {
 
             // If one char is OPEN_BRACKET, add brackets to the other char and check the next chars.
             else if (leftChar == OPEN_BRACKET) {
-                pair.right = addBrackets(pair.right, iChar)
+                pair.right = addBrackets(pair.right, charIndex)
                 continue
             } else if (rightChar == OPEN_BRACKET) {
-                pair.left = addBrackets(pair.left, iChar)
+                pair.left = addBrackets(pair.left, charIndex)
                 continue
             }
 
             // If we reach this point, the chars are numbers.
             // If the left number is smaller, the order is correct; if the left number is bigger, the order is incorrect.
-            val leftNumber = getNumber(pair.left, iChar)
-            val rightNumber = getNumber(pair.right, iChar)
+            val leftNumber = getNumber(pair.left, charIndex)
+            val rightNumber = getNumber(pair.right, charIndex)
             if (leftNumber < rightNumber) break
             else if (leftNumber > rightNumber) {
                 isCorrectOrder = false
@@ -73,17 +73,17 @@ fun main() {
 
     fun part1(input: List<PacketPair>, printProgress: Boolean = true): Int {
         val indicesOfCorrectPairs = mutableListOf<Int>()
-        for (iPair in input.indices) {
-            val pair = input[iPair]
+        for (pairIndex in input.indices) {
+            val pair = input[pairIndex]
             if (printProgress) {
-                println("Pair: ${iPair + 1}")
+                println("Pair: ${pairIndex + 1}")
                 println(pair.left)
                 println(pair.right)
             }
 
             // If pair is in correct order, add index + 1 to the list.
             if (pairIsCorrectlyOrdered(pair, printProgress)) {
-                indicesOfCorrectPairs.add(iPair + 1)
+                indicesOfCorrectPairs.add(pairIndex + 1)
             }
         }
         return indicesOfCorrectPairs.sum()
