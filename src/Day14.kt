@@ -1,7 +1,56 @@
+import java.awt.Color
+import java.awt.Graphics
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.WindowConstants
+
 const val ROCK = '#'
 const val SAND = 'o'
+const val POINT_SIZE_DAY_14 = 2
+const val INTERVAL_DAY_14 = 1
+
+class CavePanel(var cave: Array<CharArray>, var positionFallingSand: Point) : JPanel() {
+    init {
+        this.background = Color.decode(AOC_BACKGROUND_COLOR)
+    }
+
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+
+        // Color all units in the cave.
+        for (x in cave.indices) {
+            for (y in cave[x].indices) {
+                when (cave[x][y]) {
+                    ROCK -> {
+                        g.color = Color.LIGHT_GRAY
+                        g.fillRect(y * POINT_SIZE_DAY_14, x * POINT_SIZE_DAY_14, POINT_SIZE_DAY_14, POINT_SIZE_DAY_14)
+                    }
+                    SAND -> {
+                        g.color = Color.ORANGE
+                        g.fillRect(y * POINT_SIZE_DAY_14, x * POINT_SIZE_DAY_14, POINT_SIZE_DAY_14, POINT_SIZE_DAY_14)
+                    }
+                    else -> continue
+                }
+            }
+        }
+
+        // Color falling unit.
+        g.fillRect( positionFallingSand.y * POINT_SIZE_DAY_14, positionFallingSand.x * POINT_SIZE_DAY_14, POINT_SIZE_DAY_14, POINT_SIZE_DAY_14)
+    }
+}
 
 fun main() {
+    fun createFrame(panel: JPanel, cave: Array<CharArray>) {
+        val width = cave.first().size * POINT_SIZE_DAY_14 + 50
+        val height = cave.size * POINT_SIZE_DAY_14 + 50
+        val frame = JFrame("Advent of Code, Day 14: Regolith Reservoir")
+        frame.setSize(width, height)
+        frame.isVisible = true
+        frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        frame.add(panel)
+        frame.validate()
+    }
+
     fun initCave(input: List<List<Point>>, hasFloor: Boolean): Array<CharArray> {
         val maxX = if (hasFloor) input.flatten().maxOf { it.x } + 2 else input.flatten().maxOf { it.x }
         val maxY = if (hasFloor) input.flatten().maxOf { it.y } + maxX else input.flatten().maxOf { it.y }
@@ -40,14 +89,26 @@ fun main() {
         return cave
     }
 
-    fun simulateFallingSand(cave: Array<CharArray>) {
+    fun simulateFallingSand(cave: Array<CharArray>, visualise: Boolean) {
         val startPosition = Point(0, 500)
+        val panel = if (visualise) CavePanel(cave, startPosition) else null
+        if (visualise) createFrame(panel!!, cave)
         var simulate = true
         while (simulate) {
+            if (visualise) {
+                Thread.sleep(INTERVAL_DAY_14.toLong())
+                panel!!.cave = cave.copyOf()
+                panel.repaint()
+            }
             var x = startPosition.x
             var y = startPosition.y
             var isFalling = true
             while (isFalling) {
+                if (visualise) {
+                    Thread.sleep(INTERVAL_DAY_14.toLong())
+                    panel!!.positionFallingSand = Point(x, y)
+                    panel.repaint()
+                }
                 if (x + 1 >= cave.size) {
                     // Fall into endless void, stop simulation.
                     simulate = false
@@ -86,15 +147,15 @@ fun main() {
         }
     }
 
-    fun part1(input: List<List<Point>>): Int {
+    fun part1(input: List<List<Point>>, visualise: Boolean = false): Int {
         val cave = getCaveWithRockPaths(input)
-        simulateFallingSand(cave)
+        simulateFallingSand(cave, visualise)
         return cave.flatMap{it.asIterable()}.count{it == SAND}
     }
 
-    fun part2(input: List<List<Point>>): Int {
+    fun part2(input: List<List<Point>>, visualise: Boolean = false): Int {
         val cave = getCaveWithRockPaths(input, true)
-        simulateFallingSand(cave)
+        simulateFallingSand(cave, visualise)
         return cave.flatMap{it.asIterable()}.count{it == SAND}
     }
 
@@ -105,4 +166,5 @@ fun main() {
 
     println(part1(input))
     println(part2(input))
+    part2(input, true)
 }
