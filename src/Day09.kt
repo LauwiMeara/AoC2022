@@ -6,13 +6,12 @@ import javax.swing.WindowConstants.EXIT_ON_CLOSE
 import kotlin.math.abs
 
 const val NUM_OF_KNOTS_PART_2 = 9
-const val FRAME_WIDTH = 548
-const val FRAME_HEIGHT = 182
-const val POINT_WIDTH = 3
-const val POINT_HEIGHT = 3
-const val OFFSET_WIDTH = 466
-const val OFFSET_HEIGHT = 127
-const val INTERVAL = 2
+const val FRAME_WIDTH_DAY_09 = 548
+const val FRAME_HEIGHT_DAY_09 = 182
+const val OFFSET_WIDTH_DAY_09 = 466
+const val OFFSET_HEIGHT_DAY_09 = 127
+const val POINT_SIZE_DAY_09 = 3
+const val INTERVAL_DAY_09 = 2
 
 enum class Direction {
     RIGHT, LEFT, UP, DOWN
@@ -20,9 +19,9 @@ enum class Direction {
 
 data class Motion(val direction: Direction, val unit: Int)
 
-class KnotPanel(var headPositions: MutableList<Point>, var knotPositions: MutableList<MutableList<Point>>) : JPanel() {
+class RopePanel(var headPositions: MutableList<Point>, var knotPositions: MutableList<MutableList<Point>>) : JPanel() {
     init {
-        this.background = Color.decode("#0f0f23")
+        this.background = Color.decode(AOC_BACKGROUND_COLOR)
     }
 
     override fun paintComponent(g: Graphics) {
@@ -31,25 +30,24 @@ class KnotPanel(var headPositions: MutableList<Point>, var knotPositions: Mutabl
         g.color = Color.DARK_GRAY
         if (knotPositions.isNotEmpty() && knotPositions.last().isNotEmpty()) {
             for (tail in knotPositions.last().subList(0, knotPositions.last().size - 1)) {
-                g.fillRect((tail.x + OFFSET_WIDTH) * POINT_WIDTH, (tail.y + OFFSET_HEIGHT) * POINT_HEIGHT, POINT_WIDTH, POINT_HEIGHT)
+                g.fillRect((tail.x + OFFSET_WIDTH_DAY_09) * POINT_SIZE_DAY_09, (tail.y + OFFSET_HEIGHT_DAY_09) * POINT_SIZE_DAY_09, POINT_SIZE_DAY_09, POINT_SIZE_DAY_09)
             }
         }
         // Color the current position of the head and all knots.
-        g.color = Color.decode("#00cc00")
+        g.color = Color.decode(AOC_COLOR_LIGHT_GREEN)
         if (headPositions.size > 0) {
-            g.fillRect((headPositions.last().x + OFFSET_WIDTH) * POINT_WIDTH, (headPositions.last().y + OFFSET_HEIGHT) * POINT_HEIGHT, POINT_WIDTH, POINT_HEIGHT)
+            g.fillRect((headPositions.last().x + OFFSET_WIDTH_DAY_09) * POINT_SIZE_DAY_09, (headPositions.last().y + OFFSET_HEIGHT_DAY_09) * POINT_SIZE_DAY_09, POINT_SIZE_DAY_09, POINT_SIZE_DAY_09)
             for (knotPositions in knotPositions) {
-                g.fillRect((knotPositions.last().x + OFFSET_WIDTH) * POINT_WIDTH, (knotPositions.last().y + OFFSET_HEIGHT) * POINT_HEIGHT, POINT_WIDTH, POINT_HEIGHT)
+                g.fillRect((knotPositions.last().x + OFFSET_WIDTH_DAY_09) * POINT_SIZE_DAY_09, (knotPositions.last().y + OFFSET_HEIGHT_DAY_09) * POINT_SIZE_DAY_09, POINT_SIZE_DAY_09, POINT_SIZE_DAY_09)
             }
         }
     }
-
 }
 
 fun main() {
     fun createFrame(panel: JPanel) {
         val frame = JFrame("Advent of Code, Day 9: Rope Bridge")
-        frame.setSize(FRAME_WIDTH * POINT_WIDTH, FRAME_HEIGHT * POINT_HEIGHT)
+        frame.setSize(FRAME_WIDTH_DAY_09 * POINT_SIZE_DAY_09, FRAME_HEIGHT_DAY_09 * POINT_SIZE_DAY_09)
         frame.isVisible = true
         frame.defaultCloseOperation = EXIT_ON_CLOSE
         frame.add(panel)
@@ -131,7 +129,7 @@ fun main() {
             knotPositions.add(mutableListOf(Point(0,0)))
         }
         // If visualisation is asked for, create the panel and frame.
-        val panel = if (visualise) KnotPanel(headPositions, knotPositions) else null
+        val panel = if (visualise) RopePanel(headPositions, knotPositions) else null
         if (visualise) createFrame(panel!!)
         // Move head and tail knots based on the given motions.
         for (motion in motions) {
@@ -153,7 +151,7 @@ fun main() {
                     }
                 }
                 if (visualise) {
-                    Thread.sleep(INTERVAL.toLong())
+                    Thread.sleep(INTERVAL_DAY_09.toLong())
                     panel!!.headPositions = headPositions.map{it.copy()}.toMutableList()
                     panel.knotPositions = knotPositions.map{ list -> list.map{it.copy()}.toMutableList()}.toMutableList()
                     panel.repaint()
@@ -169,5 +167,5 @@ fun main() {
 
     println(part1(input))
     println(part2(input))
-    println(part2(input, true))
+    part2(input, true)
 }
