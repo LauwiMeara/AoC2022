@@ -1,5 +1,7 @@
 import java.io.File
 
+const val AOC_BACKGROUND_COLOR = "#0f0f23"
+
 data class Point(val x: Int, val y: Int)
 
 /**
