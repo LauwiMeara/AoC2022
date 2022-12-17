@@ -6,6 +6,12 @@ const val AOC_COLOR_LIGHT_GREEN = "#00cc00"
 data class Point(val x: Int, val y: Int)
 
 /**
+ * Reads from the given input txt file as one string.
+ */
+fun readInput(name: String) = File("src", "$name.txt")
+    .readText()
+
+/**
  * Reads from the given input txt file as strings split by the given delimiter.
  */
 fun readInputSplitByDelimiter(name: String, delimiter: String) = File("src", "$name.txt")
