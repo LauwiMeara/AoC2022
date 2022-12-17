@@ -1,5 +1,6 @@
 import java.io.File
 
+const val NUM_THREADS = 4
 const val AOC_BACKGROUND_COLOR = "#0f0f23"
 const val AOC_COLOR_LIGHT_GREEN = "#00cc00"
 
