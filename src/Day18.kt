@@ -1,3 +1,5 @@
+const val OFFSET_DAY_18 = 1
+
 data class Cube(val x: Int, val y: Int, val z: Int)
 
 fun getNeighbours(cube: Cube): List<Cube> {
@@ -11,48 +13,32 @@ fun getNeighbours(cube: Cube): List<Cube> {
     )
 }
 
-fun isNotAirPocket(grid: Array<Array<BooleanArray>>, startNode: Cube): Boolean {
-    // If there is a path to one of the eight corners of the grid, the startNode isn't an air pocket.
-    val maxX = grid.size - 1
-    val maxY = grid[0].size - 1
-    val maxZ = grid[0][0].size - 1
-    return hasPathToBorder(grid, startNode, Cube(0,0,0)) ||
-                hasPathToBorder(grid, startNode, Cube(maxX, 0, 0)) ||
-                hasPathToBorder(grid, startNode, Cube(0, maxY, 0)) ||
-                hasPathToBorder(grid, startNode, Cube(0, 0, maxZ)) ||
-                hasPathToBorder(grid, startNode, Cube(maxX, maxY, 0)) ||
-                hasPathToBorder(grid, startNode, Cube(maxX, 0, maxZ)) ||
-                hasPathToBorder(grid, startNode, Cube(0, maxY, maxZ)) ||
-                hasPathToBorder(grid, startNode, Cube(maxX, maxY, maxZ))
-}
-
 // Breadth-first search
-fun hasPathToBorder(grid:Array<Array<BooleanArray>>, startNode: Cube, endNode: Cube): Boolean {
-    val offset = 1
+fun hasPathToBorder(grid:Array<Array<BooleanArray>>, startNode: Cube): Boolean {
     val visitedNodes = mutableListOf<Cube>()
     val queue = ArrayDeque<Cube>()
     queue.add(startNode)
     while (queue.isNotEmpty()) {
         val currentNode = queue.removeFirst()
-        if (currentNode == endNode) {
-            // There is a path to endNode, which means that startNode isn't in an air pocket.
+        if (currentNode == Cube(0,0,0)) {
+            // There is a path to one of the corners of the grid, which means that startNode isn't in an air pocket.
             return true
         } else {
             val neighbours = getNeighbours(currentNode)
             for (neighbour in neighbours) {
-                if (neighbour.x + offset <= 0 || neighbour.y + offset <= 0 || neighbour.z + offset <= 0 ||
-                    neighbour.x + offset >= grid.size - 1 || neighbour.y + offset >= grid[0].size - 1 || neighbour.z + offset >= grid[0][0].size - 1) {
+                if (neighbour.x + OFFSET_DAY_18 <= 0 || neighbour.y + OFFSET_DAY_18 <= 0 || neighbour.z + OFFSET_DAY_18 <= 0 ||
+                    neighbour.x + OFFSET_DAY_18 >= grid.size - 1 || neighbour.y + OFFSET_DAY_18 >= grid[0].size - 1 || neighbour.z + OFFSET_DAY_18 >= grid[0][0].size - 1) {
                     // There is a path to the border, which means that startNode isn't in an air pocket.
                     return true
                 }
-                if (!visitedNodes.contains(neighbour) && !grid[neighbour.x + offset][neighbour.y + offset][neighbour.z + offset]) {
+                if (!visitedNodes.contains(neighbour) && !grid[neighbour.x + OFFSET_DAY_18][neighbour.y + OFFSET_DAY_18][neighbour.z + OFFSET_DAY_18]) {
                     queue.addFirst(neighbour)
                 }
             }
             visitedNodes.add(currentNode)
         }
     }
-    // There is no path found, which means that startNode might be in an air pocket.
+    // There is no path found, which means that startNode is in an air pocket.
     return false
 }
 
@@ -86,24 +72,21 @@ fun main() {
 
     fun part2(input: List<Cube>, debug: Boolean = false): Int {
         var totalExposedSides = 0
-        val offset = 1
         val maxX = input.maxOf{it.x}
         val maxY = input.maxOf{it.y}
         val maxZ = input.maxOf{it.z}
-        val grid = Array(maxX + 3) {Array(maxY + 3) {BooleanArray(maxZ + 3)} }
+        val grid = Array(maxX + 1 + (2 * OFFSET_DAY_18)) {
+            Array(maxY + 1 + (2 * OFFSET_DAY_18)) {
+                BooleanArray(maxZ + 1 + (2 * OFFSET_DAY_18))}}
         for (cube in input) {
-            grid[cube.x + offset][cube.y + offset][cube.z + offset] = true
+            grid[cube.x + OFFSET_DAY_18][cube.y + OFFSET_DAY_18][cube.z + OFFSET_DAY_18] = true
         }
         for ((i, cube) in input.withIndex()) {
-            if (debug) println("Cube number: $i")
+            if (debug) println("Cube number: ${i + 1}/${input.size}")
             val neighbours = getNeighbours(cube)
-            for ((j, neighbour) in neighbours.withIndex()) {
-                if (debug) println("Looking at neighbour $j")
-                if (neighbour.x + offset <= 0 || neighbour.y + offset <= 0 || neighbour.z + offset <= 0 ||
-                    neighbour.x + offset >= grid.size - 1 || neighbour.y + offset >= grid[0].size - 1 || neighbour.z + offset >= grid[0][0].size - 1) {
-                    totalExposedSides += 1
-                    continue
-                } else if (!grid[neighbour.x + offset][neighbour.y + offset][neighbour.z + offset] && isNotAirPocket(grid, Cube(neighbour.x, neighbour.y, neighbour.z))) {
+            for (neighbour in neighbours) {
+                if (!grid[neighbour.x + OFFSET_DAY_18][neighbour.y + OFFSET_DAY_18][neighbour.z + OFFSET_DAY_18] &&
+                    hasPathToBorder(grid, Cube(neighbour.x, neighbour.y, neighbour.z))) {
                     totalExposedSides += 1
                 }
             }
