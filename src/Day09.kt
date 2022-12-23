@@ -13,10 +13,6 @@ const val OFFSET_HEIGHT_DAY_09 = 127
 const val POINT_SIZE_DAY_09 = 3
 const val INTERVAL_DAY_09 = 2
 
-enum class Direction {
-    RIGHT, LEFT, UP, DOWN
-}
-
 data class Motion(val direction: Direction, val unit: Int)
 
 class RopePanel(var headPositions: MutableList<Point>, var knotPositions: MutableList<MutableList<Point>>) : JPanel() {

@@ -6,6 +6,10 @@ const val AOC_COLOR_LIGHT_GREEN = "#00cc00"
 
 data class Point(val x: Int, val y: Int)
 
+enum class Direction {
+    RIGHT, LEFT, UP, DOWN
+}
+
 /**
  * Reads from the given input txt file as one string.
  */
