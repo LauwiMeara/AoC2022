@@ -143,6 +143,6 @@ fun main() {
                 Element.OBSIDIAN to it[3].chunked(2).map{x -> Material(x.first().toInt(), getElement(x.last()))},
                 Element.GEODE to it[4].chunked(2).map{x -> Material(x.first().toInt(), getElement(x.last()))}))}
 
-    // println(part1(input))
+    println(part1(input))
     println(part2(input))
 }
