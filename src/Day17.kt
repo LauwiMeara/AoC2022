@@ -229,11 +229,6 @@ fun main() {
                 if (panel != null) {
                     Thread.sleep(INTERVAL_DAY_17)
                     panel.grid = cave.copyOf()
-                    }
-                }
-                if (visualise) {
-                    Thread.sleep(INTERVAL_DAY_17)
-                    panel!!.grid = cave.copyOf()
                     panel.repaint()
                 }
             }
