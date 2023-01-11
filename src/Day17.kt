@@ -9,12 +9,14 @@ const val HEIGHT_OFFSET_FALLING_ROCK = 3
 const val LEFT_OFFSET_FALLING_ROCK = 2
 const val CHAR_FALLING_ROCK = '@'
 const val CHAR_LANDED_ROCK = '#'
-const val NUM_ROCKS_PART_1 = 2022
+const val NUM_ROCKS_PART_1 = 2022L
+const val NUM_ROCKS_PART_2 = 1000000000000
 const val FRAME_HEIGHT_DAY_17 = 1000
 const val POINT_SIZE_DAY_17 = 30
 const val INTERVAL_DAY_17 = 80L
 
 data class Rock(val str: String, val size: Int, val width: Int = size)
+data class State(val rockIndex: Long, val windIndex: Int, val heightPerColumn: List<Int>)
 
 class TetrisPanel(var grid: Array<CharArray>) : JPanel() {
     init {
@@ -130,26 +132,26 @@ fun main() {
         return cave.map{y -> y.map{if (it == CHAR_FALLING_ROCK) CHAR_LANDED_ROCK else it}.toCharArray()}.toTypedArray()
     }
 
-    fun part1(input: String, visualise: Boolean = false): Int {
-        // Initialise.
-        var cave = getCaveWithFloor()
-        val panel = if (visualise) TetrisPanel(cave) else null
-        if (visualise) createFrame(panel!!)
-
+    fun simulateFallingRocks(grid: Array<CharArray>, numRocks: Long, panel: TetrisPanel?, input: String, isPart2: Boolean = false): Long {
+        val states = mutableListOf<Pair<State, Long>>()
+        var foundCycle = false
+        var height = 0L
+        var cave = grid
         var windIndex = 0
-        for (numRocks in 1.. NUM_ROCKS_PART_1) {
+        var rockIndex = 1L
+        while (rockIndex <= numRocks) {
             // Let rock appear.
-            val rock = when (numRocks % 5) {
-                1 -> Rock("............@@@@", 4)
-                2 -> Rock(".@.@@@.@.", 3)
-                3 -> Rock("..@..@@@@", 3)
-                4 -> Rock("@...@...@...@...", 4, 1)
+            val rock = when (rockIndex % 5) {
+                1L -> Rock("............@@@@", 4)
+                2L -> Rock(".@.@@@.@.", 3)
+                3L -> Rock("..@..@@@@", 3)
+                4L -> Rock("@...@...@...@...", 4, 1)
                 else -> Rock("@@@@", 2, 2)
             }
             cave = addFallingRock(cave, rock)
-            if (visualise) {
+            if (panel != null) {
                 Thread.sleep(INTERVAL_DAY_17)
-                panel!!.grid = cave.copyOf()
+                panel.grid = cave.copyOf()
                 panel.repaint()
             }
 
@@ -179,12 +181,11 @@ fun main() {
                         }
                     }
                 }
-                if (visualise) {
+                if (panel != null) {
                     Thread.sleep(INTERVAL_DAY_17)
-                    panel!!.grid = cave.copyOf()
+                    panel.grid = cave.copyOf()
                     panel.repaint()
                 }
-                windIndex++
 
                 // Fall down.
                 if (yRock + 1 < cave.size) {
@@ -195,20 +196,64 @@ fun main() {
                     } else {
                         isFalling = false
                         cave = landRock(cave)
+                        if (isPart2 && !foundCycle) {
+                            val state = State(rockIndex % 5, windIndex % input.length, cave.map{it.size - 1})
+                            val indexInStates = states.indexOfFirst{it.first == state}
+                            if (indexInStates != -1) {
+                                // Found a cycle.
+                                foundCycle = true
+                                val numRocksPerCycle = states.size - indexInStates
+                                val heightPerCycle = height - states[indexInStates].second
+                                val numRocksLeft = NUM_ROCKS_PART_2 - rockIndex
+                                val numCycles = numRocksLeft / numRocksPerCycle
+                                height += (numCycles * heightPerCycle)
+                                rockIndex = numRocks - (numRocksLeft % numRocksPerCycle)
+                            }
+                            states.add(Pair(state, height))
+                        }
+                        rockIndex++
+                        val yFull = cave.indexOfFirst{y -> y.all{it == CHAR_LANDED_ROCK}}
+                        if (yFull != -1 && yFull != cave.size - 1) {
+                            height += (cave.size - 1 - yFull)
+                            val newCave = Array(yFull + 1) { CharArray(CAVE_WIDTH) }
+                            for (y in newCave.indices) {
+                                for (x in 0 until CAVE_WIDTH) {
+                                    newCave[y][x] = cave[y][x]
+                                }
+                            }
+                            cave = newCave
+                        }
                     }
                 }
-                if (visualise) {
+                windIndex++
+                if (panel != null) {
                     Thread.sleep(INTERVAL_DAY_17)
-                    panel!!.grid = cave.copyOf()
+                    panel.grid = cave.copyOf()
                     panel.repaint()
                 }
             }
         }
-        return cave.filter{it.contains(CHAR_LANDED_ROCK)}.size - 1
+        height += cave.filter{it.contains(CHAR_LANDED_ROCK)}.size.toLong() - 1
+        return height
+    }
+
+    fun part1(input: String, visualise: Boolean = false): Long {
+        val cave = getCaveWithFloor()
+        val panel = if (visualise) TetrisPanel(cave) else null
+        if (panel != null) createFrame(panel)
+        return simulateFallingRocks(cave, NUM_ROCKS_PART_1, panel, input)
+    }
+
+    fun part2(input: String, visualise: Boolean = false): Long {
+        val cave = getCaveWithFloor()
+        val panel = if (visualise) TetrisPanel(cave) else null
+        if (visualise) createFrame(panel!!)
+        return simulateFallingRocks(cave, NUM_ROCKS_PART_2, panel, input, true)
     }
 
     val input = readInput("Day17")
 
     println(part1(input))
     part1(input, true)
+    println(part2(input))
 }
