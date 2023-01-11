@@ -16,7 +16,6 @@ const val POINT_SIZE_DAY_17 = 30
 const val INTERVAL_DAY_17 = 80L
 
 data class Rock(val str: String, val size: Int, val width: Int = size)
-
 data class State(val rockIndex: Long, val windIndex: Int, val heightPerColumn: List<Int>)
 
 class TetrisPanel(var grid: Array<CharArray>) : JPanel() {
@@ -230,6 +229,11 @@ fun main() {
                 if (panel != null) {
                     Thread.sleep(INTERVAL_DAY_17)
                     panel.grid = cave.copyOf()
+                    }
+                }
+                if (visualise) {
+                    Thread.sleep(INTERVAL_DAY_17)
+                    panel!!.grid = cave.copyOf()
                     panel.repaint()
                 }
             }
